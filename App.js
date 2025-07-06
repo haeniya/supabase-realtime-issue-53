@@ -35,7 +35,8 @@ export default function App() {
 
   useEffect(() => {
     if (!session) return;
-
+    console.log(session);
+    supabase.realtime.setAuth(session.access_token);
     const channel = supabase
       .channel('messages_test')
       .on(
