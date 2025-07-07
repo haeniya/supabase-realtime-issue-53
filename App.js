@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 50,
+    maxHeight: '80%',
   },
   messagesContainer: {
     flex: 1,

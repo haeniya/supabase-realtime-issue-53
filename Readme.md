@@ -14,8 +14,8 @@
   - `EXPO_PUBLIC_SUPABASE_EMAIL=YOUR_USER_EMAIL`
   - `EXPO_PUBLIC_SUPABASE_PASSWORD=YOUR_USER_PW`
 - Install dependencies with `npm install`
-- Create Expo development build (https://docs.expo.dev/build/setup/)
-- Start the app on iOS or Android emulator with `npm start`
+- If you don't use Expo Go, create Expo development build (https://docs.expo.dev/build/setup/) -> not needed
+- Start the app on iOS or Android emulator with `npm start` (Switch to Expo Go by pressing "s", if you don't have a dev build)
 - Click Login
 - Send messages, this should work as expected and you should see the new messages in the list.
 - Send app to background
