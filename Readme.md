@@ -8,8 +8,11 @@
 
 # Instructions
 
-- Put your Supabase key and the project URL in /lib/supabase.ts
-- Put the email and password of your user into App.js
+- Create a .env file in the root of the project with the following ENV vars:
+  - `EXPO_PUBLIC_SUPABASE_PROJECT_URL=YOUR_PROJECT_URL`
+  - `EXPO_PUBLIC_SUPABASE_TOKEN=YOUR_ANON_TOKEN`
+  - `EXPO_PUBLIC_SUPABASE_EMAIL=YOUR_USER_EMAIL`
+  - `EXPO_PUBLIC_SUPABASE_PASSWORD=YOUR_USER_PW`
 - Install dependencies with `npm install`
 - Create Expo development build (https://docs.expo.dev/build/setup/)
 - Start the app on iOS or Android emulator with `npm start`
