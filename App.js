@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TextInput, Button, ScrollView, AppState } from 'react-native';
 import { supabase } from './lib/supabase';
 
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [session, setSession] = useState();
+  const appState = useRef(AppState.currentState);
 
   const signInWithEmailAndPassword = async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: 'YOUR_EMAIL',
-      password: 'YOUR_PASSWORD',
+      email: process.env.EXPO_PUBLIC_SUPABASE_EMAIL,
+      password: process.env.EXPO_PUBLIC_SUPABASE_PASSWORD,
     });
-    if (error) throw new Error();
+    if (error) throw new Error(error.message);
     return data;
   };
 
@@ -34,8 +35,53 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('app in foreground again');
+        await supabase.realtime.setAuth();
+        fetchMessages();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [session]);
+
+  useEffect(() => {
     if (!session) return;
-    console.log(session);
+    const initChannel = async () => {
+      console.log(session);
+      await supabase.realtime.setAuth(); // Needed for Realtime Authorization
+
+      const channel = supabase
+        .channel(`topic:messages`, {
+          config: { private: true },
+        })
+        .on('broadcast', { event: 'INSERT' }, (payload) => {
+          console.log('new message received!', payload);
+          setMessages((current) => [...current, payload.payload.record]);
+        })
+        .on('broadcast', { event: 'UPDATE' }, (payload) => console.log(payload))
+        .on('broadcast', { event: 'DELETE' }, (payload) => console.log(payload))
+        .subscribe();
+
+      // store channel to remove later
+      cleanupChannel = channel;
+    };
+
+    let cleanupChannel;
+
+    initChannel();
+
+    return () => {
+      if (cleanupChannel) {
+        supabase.removeChannel(cleanupChannel);
+      }
+    };
+
+    /*
     supabase.realtime.setAuth(session.access_token);
     const channel = supabase
       .channel('messages_test')
@@ -52,10 +98,11 @@ export default function App() {
         }
       )
       .subscribe();
+    
 
     return () => {
       supabase.removeChannel(channel);
-    };
+    };*/
   }, [session]);
 
   const fetchMessages = async () => {
